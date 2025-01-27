@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Energy Plan Checkout - PowerCo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .payment-option {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .payment-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-[Inter] min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-5xl mx-auto px-6 py-4">
+            <div class="h-8 flex items-center">
+                <img src="/api/placeholder/120/32" alt="PowerCo Logo" class="h-full w-auto" />
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-6 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Column -->
+            <div class="flex-grow">
+                <h1 class="text-2xl font-semibold text-gray-900 mb-8">Complete Your Plan Setup</h1>
+                
+                <!-- Plan Details -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Selected Plan</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Plan Type</span>
+                            <span class="font-semibold text-gray-900">Green Energy Plus</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Rate Type</span>
+                            <span class="font-semibold text-gray-900">Fixed Rate</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Term Length</span>
+                            <span class="font-semibold text-gray-900">12 Months</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <span class="text-gray-600">Rate per kWh</span>
+                            <div class="text-right">
+                                <span class="font-semibold text-gray-900">12.9¢</span>
+                                <span class="block text-sm text-gray-500">Fixed for 12 months</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Select Payment Method</h2>
+                    <div class="space-y-3">
+                        <div class="payment-option disabled">
+                            <input type="radio" disabled class="w-4 h-4" />
+                            <div class="flex-grow">
+                                <div class="font-medium text-gray-900">Credit Card</div>
+                                <div class="text-sm text-gray-500">Pay with credit or debit card</div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option disabled">
+                            <input type="radio" disabled class="w-4 h-4" />
+                            <div class="flex-grow">
+                                <div class="font-medium text-gray-900">Bank Account</div>
+                                <div class="text-sm text-gray-500">Pay directly from your bank account</div>
+                            </div>
+                        </div>
+
+                        <!-- HouseTabz Button Container -->
+                        <div id="housetabz-button"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:sticky lg:top-4">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Order Summary</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Estimated Usage</span>
+                            <span class="font-semibold text-gray-900">1,000 kWh</span>
+                        </div>
+                        <div class="flex justify-between py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Rate per kWh</span>
+                            <span class="font-semibold text-gray-900">12.9¢</span>
+                        </div>
+                        <div class="flex justify-between py-3">
+                            <span class="text-gray-600">Monthly Estimate</span>
+                            <span class="font-semibold text-gray-900">$99.99</span>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-sm text-blue-800">Connect with HouseTabz to automatically split your monthly energy bill with roommates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Load HouseTabz script -->
+    <script src="dist/housetabz.min.js"></script>
+    
+    <!-- Debug Panel -->
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-gray-200 p-4 rounded-lg text-xs font-mono shadow-lg">
+        <div class="font-medium mb-2">Debug Info</div>
+        <div id="debug-info"></div>
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('debug-info').innerHTML = `
+                user_id: ${params.get('user_id') || 'not set'}<br>
+                partner_id: ${params.get('partner_id') || 'not set'}<br>
+                ref: ${params.get('ref') || 'not set'}<br>
+                Environment: development
+            `;
+        </script>
+    </div>
+
+    <!-- Initialize HouseTabz -->
+    <script>
+        window.addEventListener('load', async () => {
+            // Check if HouseTabz loaded
+            if (!window.HouseTabz) {
+                console.error('HouseTabz script failed to load');
+                return;
+            }
+
+            // Get URL parameters
+            const params = new URLSearchParams(window.location.search);
+            const partnerId = params.get('partner_id');
+
+            // If no partner_id, redirect with all required parameters
+            if (!params.get('partner_id') || !params.get('user_id') || !params.get('ref')) {
+                window.location.search = '?user_id=1&partner_id=11&ref=housetabz';
+                return;
+            }
+
+            try {
+                // Initialize HouseTabz
+                await window.HouseTabz.init({
+                    apiKey: 'whec-340099b862ff45ac553074203ab2b906',
+                    secretKey: 'htzs-b544fc662907847f78b9f91a7c0f825153fec9b2e9fafc2db23e810eda095a68',
+                    environment: 'development'
+                });
+
+                // Mount the button
+                await window.HouseTabz.mount('#housetabz-button', {
+                    serviceName: 'Green Energy Plus Plan',
+                    pricing: 99.99,
+                    transactionId: `PARTNER-${partnerId}-${Date.now()}`
+                });
+
+            } catch (error) {
+                console.error('HouseTabz error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
