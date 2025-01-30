@@ -1,8 +1,15 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'development',  // Let's explicitly set mode
-  entry: './src/core/index.ts',  // This points to our TypeScript file
+  entry: './src/core/index.ts',
+  output: {
+    filename: 'housetabz.min.js',
+    path: path.resolve(__dirname, 'dist'),
+    library: 'HouseTabz',
+    libraryTarget: 'window',
+    libraryExport: 'default'
+  },
+  mode: 'development',
   module: {
     rules: [
       {
@@ -15,8 +22,4 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  output: {
-    filename: 'housetabz.min.js',
-    path: path.resolve(__dirname, 'dist'),
-  }
 };

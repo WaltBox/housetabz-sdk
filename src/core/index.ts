@@ -7,7 +7,9 @@ export interface HouseTabzConfig {
 
 export interface MountOptions {
   serviceName: string;
-  pricing: number;
+  serviceType: 'energy' | 'cleaning';
+  estimatedAmount: number;
+  requiredUpfrontPayment?: number;
   transactionId: string;
   onSuccess?: (data: any) => void;
   onError?: (error: Error) => void;
@@ -145,34 +147,35 @@ class HouseTabz {
     container.appendChild(wrapper);
   }
 
-  private async createStagedRequest(options: MountOptions) {
-    console.log('Current params:', this.params);  // Add this
-    const url = `${this.baseUrl}/partners/${this.params?.partnerId}/staged-request`;  // Now includes partnerId
-    
-    
-    console.log('Creating staged request:', { url, options });
+ // In your createStagedRequest method, update the body:
+private async createStagedRequest(options: MountOptions) {
+  const url = `${this.baseUrl}/partners/${this.params?.partnerId}/staged-request`;
+  
+  console.log('Creating staged request:', { url, options });
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-HouseTabz-API-Key': this.config!.apiKey,
-            'X-HouseTabz-Secret-Key': this.config!.secretKey
-        },
-        body: JSON.stringify({
-            transactionId: options.transactionId,
-            serviceName: options.serviceName,
-            pricing: options.pricing,
-            userId: this.params?.userId
-        })
-    });
+  const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-HouseTabz-API-Key': this.config!.apiKey,
+          'X-HouseTabz-Secret-Key': this.config!.secretKey
+      },
+      body: JSON.stringify({
+          transactionId: options.transactionId,
+          serviceName: options.serviceName,
+          serviceType: options.serviceType,
+          estimatedAmount: options.estimatedAmount,
+          requiredUpfrontPayment: options.requiredUpfrontPayment,
+          userId: this.params?.userId
+      })
+  });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new HouseTabzError(error.message || 'Request failed', 'API_ERROR');
-    }
+  if (!response.ok) {
+      const error = await response.json();
+      throw new HouseTabzError(error.message || 'Request failed', 'API_ERROR');
+  }
 
-    return await response.json();
+  return await response.json();
 }
   private handleSuccess(
     button: HTMLButtonElement,
