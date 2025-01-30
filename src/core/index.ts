@@ -146,7 +146,9 @@ class HouseTabz {
   }
 
   private async createStagedRequest(options: MountOptions) {
-    const url = `${this.baseUrl}/partners/staged-request`;  // No partnerId in URL
+    console.log('Current params:', this.params);  // Add this
+    const url = `${this.baseUrl}/partners/${this.params?.partnerId}/staged-request`;  // Now includes partnerId
+    
     
     console.log('Creating staged request:', { url, options });
 
