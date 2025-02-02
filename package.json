@@ -23,3 +23,5 @@
     "webpack-cli": "^6.0.1"
   }
 }
+
+// http-server -p 8080
