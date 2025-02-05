@@ -1,98 +1,113 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Cleaning Service Checkout - CleanCo</title>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Mobile-first viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CleanCo Checkout</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="bg-gray-50 font-[Inter] min-h-screen">
-    <header class="bg-white shadow-sm">
-        <div class="max-w-5xl mx-auto px-6 py-4">
-            <div class="h-8 flex items-center">
-                <div class="flex-grow">
-                    <img src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" alt="CleanCo" class="h-6" />
-                </div>
-            </div>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow border-b border-gray-200">
+      <div class="flex items-center justify-between px-4 py-3">
+        <div class="flex items-center">
+          <img
+            src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+            alt="CleanCo"
+            class="h-6 mr-2"
+          />
+          <span class="text-xl font-bold text-indigo-600">CleanCo</span>
         </div>
+        <!-- Optional menu icon -->
+        <button class="text-gray-600 focus:outline-none">
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 py-8">
-        <!-- Service Details -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 class="text-lg font-medium text-gray-900 mb-6">Cleaning Service Details</h2>
-            <div class="space-y-4">
-                <div class="flex justify-between py-3 border-b border-gray-100">
-                    <span class="text-gray-600">Service Type</span>
-                    <span class="font-semibold text-gray-900">Deep Clean</span>
-                </div>
-                <div class="flex justify-between py-3 border-b border-gray-100">
-                    <span class="text-gray-600">Duration</span>
-                    <span class="font-semibold text-gray-900">4 Hours</span>
-                </div>
-                <div class="flex justify-between py-3">
-                    <span class="text-gray-600">Total Cost</span>
-                    <span class="font-semibold text-gray-900">$150.00</span>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <main class="px-4 py-6">
+      <!-- Service Details Card -->
+      <section class="bg-white rounded-lg shadow p-4 mb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Service Details</h2>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Service Type</span>
+            <span class="font-medium text-gray-800">Deep Clean</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Duration</span>
+            <span class="font-medium text-gray-800">4 Hours</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Total Cost</span>
+            <span class="font-semibold text-gray-900">$150.00</span>
+          </div>
         </div>
+      </section>
 
-        <!-- Payment Method -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-medium text-gray-900 mb-6">Payment Method</h2>
-            <div id="housetabz-button"></div>
-        </div>
+      <!-- Payment Method Card -->
+      <section class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h2>
+        <div id="housetabz-button" class="flex justify-center"></div>
+      </section>
     </main>
 
-    <!-- Debug Panel -->
-    <div class="fixed bottom-4 right-4 bg-gray-900 text-gray-200 p-4 rounded-lg text-xs font-mono shadow-lg">
-        <div class="font-medium mb-2">Debug Info</div>
-        <div id="debug-info"></div>
+    <!-- Debug Panel (Optional) -->
+    <div
+      class="fixed bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs p-2 rounded"
+    >
+      <div class="font-bold mb-1">Debug Info</div>
+      <div id="debug-info"></div>
     </div>
 
-    <!-- Load HouseTabz SDK -->
+    <!-- HouseTabz SDK and Initialization -->
     <script src="dist/housetabz.min.js"></script>
     <script>
-        window.addEventListener('load', async () => {
-            // Get URL parameters
-            const params = new URLSearchParams(window.location.search);
-            const partnerId = params.get('partner_id');
-            const userId = params.get('user_id');
-            const ref = params.get('ref');
-            
-            // Show debug info
-            document.getElementById('debug-info').innerHTML = `
-                user_id: ${userId || 'not set'}<br>
-                partner_id: ${partnerId || 'not set'}<br>
-                ref: ${ref || 'not set'}<br>
-                Environment: development
-            `;
+      window.addEventListener("load", async () => {
+  try {
+    await window.HouseTabz.init({
+      apiKey: "whec-228c96e757559b88537c96cfbdd8c01f",
+      secretKey: "htzs-6dde892db25131b1faf939f916a5b943e85deaa5bee7718b3e2830b4578322b5", // Provide the secret key here
+      environment: "development"
+    });
 
-            // Validate required parameters
-            if (!partnerId || !userId || ref !== 'housetabz') {
-                console.error('Missing or invalid URL parameters');
-                window.location.search = '?user_id=1&partner_id=12&ref=housetabz';
-                return;
-            }
+    await window.HouseTabz.mount("#housetabz-button", {
+      serviceName: "Deep Clean Service",
+      serviceType: "cleaning",
+      estimatedAmount: 150.0,
+      requiredUpfrontPayment: 150.0,
+      transactionId: `CLEANING-${Date.now()}`
+    });
 
-            try {
-                await window.HouseTabz.init({
-                    apiKey: 'whec-228c96e757559b88537c96cfbdd8c01f',
-                    secretKey: 'htzs-6dde892db25131b1faf939f916a5b943e85deaa5bee7718b3e2830b4578322b5',
-                    environment: 'development'
-                });
-
-                await window.HouseTabz.mount('#housetabz-button', {
-    serviceName: 'Deep Clean Service',
-    serviceType: 'cleaning',
-    estimatedAmount: 150.00,
-    requiredUpfrontPayment: 150.00,  // Same as estimatedAmount for cleaning
-    transactionId: `CLEANING-${partnerId}-${Date.now()}`
+    // Add debug log
+    console.log('HouseTabz initialized');
+  } catch (error) {
+    console.error("HouseTabz error:", error);
+  }
 });
-            } catch (error) {
-                console.error('HouseTabz error:', error);
-            }
-        });
     </script>
-</body>
+  </body>
 </html>
-

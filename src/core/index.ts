@@ -1,7 +1,7 @@
 // Type definitions
 export interface HouseTabzConfig {
   apiKey: string;
-  secretKey: string;
+  secretKey: string; 
   environment?: 'development' | 'staging' | 'production';
 }
 
@@ -11,29 +11,11 @@ export interface MountOptions {
   estimatedAmount: number;
   requiredUpfrontPayment?: number;
   transactionId: string;
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error) => void;
-  onCancel?: () => void;
-}
-
-interface URLParams {
-  userId: string | null;
-  partnerId: string | null;
-  ref: string | null;
-}
-
-export class HouseTabzError extends Error {
-  constructor(message: string, public code: string) {
-    super(message);
-    this.name = 'HouseTabzError';
-  }
 }
 
 class HouseTabz {
-  private static readonly VERSION = '1.0.0';
   private static instance: HouseTabz | null = null;
   private config: HouseTabzConfig | null = null;
-  private params: URLParams | null = null;
   private baseUrl: string = '';
 
   private constructor() {}
@@ -47,180 +29,90 @@ class HouseTabz {
 
   private determineBaseUrl(environment: string = 'development'): string {
     const urls = {
-      production: 'https://api.housetabz.com/api',
-      staging: 'https://staging.housetabz.com/api',
-      development: 'http://localhost:3004/api'
+      production: 'https://housetabz.com',
+      staging: 'https://staging.housetabz.com',
+      development: 'http://localhost:3000'
     };
     return urls[environment] || urls.development;
   }
 
-  private extractURLParams(): URLParams {
+  // Check if we should show the button
+  private shouldDisplay(): boolean {
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get('user_id');
-    const partnerId = params.get('partner_id');
-    const ref = params.get('ref');
-
-    console.log('Extracted URL params:', { userId, partnerId, ref });
-    return { userId, partnerId, ref };
+    return params.get('ref') === 'housetabz';
   }
 
   async init(config: HouseTabzConfig): Promise<void> {
-    try {
-      // Store config and extract params
-      this.config = config;
-      this.params = this.extractURLParams();
-      this.baseUrl = this.determineBaseUrl(config.environment);
+    this.config = config;
+    this.baseUrl = this.determineBaseUrl(config.environment);
+    console.log('Base URL:', this.baseUrl);
 
-      console.log('Initializing HouseTabz:', {
-        baseUrl: this.baseUrl,
-        params: this.params,
-        environment: config.environment
-      });
-
-      // Validate configuration
-      if (!config.apiKey || !config.secretKey) {
-        throw new HouseTabzError('API key and Secret key are required', 'INVALID_CONFIG');
-      }
-
-      // Validate URL parameters
-      if (!this.params.userId) {
-        throw new HouseTabzError('user_id is required in URL', 'MISSING_USER_ID');
-      }
-      if (!this.params.partnerId) {
-        throw new HouseTabzError('partner_id is required in URL', 'MISSING_PARTNER_ID');
-      }
-      if (this.params.ref !== 'housetabz') {
-        throw new HouseTabzError('Invalid referrer', 'INVALID_REF');
-      }
-
-      console.log('HouseTabz initialized successfully');
-    } catch (error) {
-      console.error('Initialization failed:', error);
-      throw error;
+    if (!config.apiKey) {
+      throw new Error('API key is required');
     }
   }
 
   async mount(selector: string, options: MountOptions): Promise<void> {
-    try {
-      console.log('Mounting HouseTabz button with options:', options);
-
-      const container = document.querySelector(selector);
-      if (!container) {
-        throw new HouseTabzError(`Container ${selector} not found`, 'INVALID_SELECTOR');
-      }
-
-      this.renderButton(container, options);
-    } catch (error) {
-      console.error('Mount failed:', error);
-      throw error;
+    // Only show button if user came from HouseTabz
+    if (!this.shouldDisplay()) {
+      return;
     }
+
+    const container = document.querySelector(selector);
+    if (!container) return;
+
+    this.renderButton(container, options);
   }
 
+  private handleButtonClick(options: MountOptions): void {
+    const currentParams = new URLSearchParams(window.location.search);
+    const partnerId = currentParams.get('partner_id');
+    
+    if (!partnerId) {
+        console.error('Missing partner_id parameter');
+        return;
+    }
+
+    // In your SDK's handleButtonClick function:
+const params = new URLSearchParams({
+  serviceName: options.serviceName,
+  serviceType: options.serviceType,
+  amount: options.estimatedAmount.toString(),
+  upfront: options.requiredUpfrontPayment?.toString() || '0',
+  transactionId: options.transactionId,
+  apiKey: this.config!.apiKey,
+  secretKey: this.config!.secretKey,  // <-- Add secretKey here
+  partner_id: partnerId
+});
+
+    const redirectUrl = `http://localhost:3000/confirm-request?${params}`;
+    window.location.href = redirectUrl;
+}
   private renderButton(container: Element, options: MountOptions): void {
     const wrapper = document.createElement('div');
     wrapper.className = 'housetabz-wrapper';
 
     const button = document.createElement('button');
     button.className = 'housetabz-connect-button';
-    button.innerHTML = 'Connect to <span class="housetabz-highlight">HouseTabz</span>';
+    button.innerHTML = 'Split with <span class="housetabz-highlight">HouseTabz</span>';
 
-    const messageContainer = document.createElement('div');
-    messageContainer.className = 'housetabz-message';
-    messageContainer.style.display = 'none';
-
-    button.onclick = async () => {
-      try {
-        button.disabled = true;
-        button.classList.add('loading');
-        messageContainer.style.display = 'block';
-
-        const response = await this.createStagedRequest(options);
-        this.handleSuccess(button, messageContainer, response, options);
-      } catch (error) {
-        this.handleError(button, messageContainer, error as Error, options);
-      }
-    };
+    button.onclick = () => this.handleButtonClick(options);
 
     wrapper.appendChild(button);
-    wrapper.appendChild(messageContainer);
     container.innerHTML = '';
     container.appendChild(wrapper);
   }
-
- // In your createStagedRequest method, update the body:
-private async createStagedRequest(options: MountOptions) {
-  const url = `${this.baseUrl}/partners/${this.params?.partnerId}/staged-request`;
-  
-  console.log('Creating staged request:', { url, options });
-
-  const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'X-HouseTabz-API-Key': this.config!.apiKey,
-          'X-HouseTabz-Secret-Key': this.config!.secretKey
-      },
-      body: JSON.stringify({
-          transactionId: options.transactionId,
-          serviceName: options.serviceName,
-          serviceType: options.serviceType,
-          estimatedAmount: options.estimatedAmount,
-          requiredUpfrontPayment: options.requiredUpfrontPayment,
-          userId: this.params?.userId
-      })
-  });
-
-  if (!response.ok) {
-      const error = await response.json();
-      throw new HouseTabzError(error.message || 'Request failed', 'API_ERROR');
-  }
-
-  return await response.json();
-}
-  private handleSuccess(
-    button: HTMLButtonElement,
-    messageContainer: HTMLDivElement,
-    response: any,
-    options: MountOptions
-  ): void {
-    button.classList.remove('loading');
-    button.disabled = true;
-    messageContainer.style.display = 'block';
-    messageContainer.innerHTML = `
-      <div class="success-box">
-        <p>Request successful! Roommates have been notified to accept.</p>
-      </div>
-    `;
-    options.onSuccess?.(response);
-  }
-
-  private handleError(
-    button: HTMLButtonElement,
-    messageContainer: HTMLDivElement,
-    error: Error,
-    options: MountOptions
-  ): void {
-    button.disabled = false;
-    button.classList.remove('loading');
-    messageContainer.style.display = 'block';
-    messageContainer.innerHTML = `
-      <div class="error-box">
-        <p>${error.message || 'Something went wrong. Please try again.'}</p>
-      </div>
-    `;
-    options.onError?.(error);
-  }
 }
 
-// Apply styles
+// Apply button styles
 const style = document.createElement('style');
 style.innerHTML = `
   .housetabz-connect-button {
     padding: 14px 24px;
     font-size: 16px;
     font-weight: 600;
-    color: black;
-    background-color: #34d399;
+    color: white;
+    background-color: #6A0DAD;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -230,48 +122,21 @@ style.innerHTML = `
   }
 
   .housetabz-connect-button:hover {
-    background-color: #2d9f78;
+    background-color: #5A0C93;
     transform: translateY(-1px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
   }
 
   .housetabz-connect-button:disabled {
-    background-color: #a7f3d0;
+    background-color: #9B6FB8;
     cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .housetabz-connect-button.loading {
-    cursor: progress;
   }
 
   .housetabz-highlight {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    color: black;
-  }
-
-  .housetabz-message {
-    margin-top: 12px;
-    font-size: 14px;
-    text-align: center;
-  }
-
-  .success-box {
-    background-color: #e0fce4;
-    color: #047857;
-    padding: 12px;
-    border-radius: 6px;
-  }
-
-  .error-box {
-    background-color: #fee2e2;
-    color: #b91c1c;
-    padding: 12px;
-    border-radius: 6px;
+    color: white;
   }
 `;
 document.head.appendChild(style);
 
-// Export singleton instance
 export default HouseTabz.getInstance();
