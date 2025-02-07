@@ -140,3 +140,4 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 export default HouseTabz.getInstance();
+//npx http-server -p 8080
