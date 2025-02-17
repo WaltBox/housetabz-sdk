@@ -18,84 +18,129 @@ class HouseTabz {
   private config: HouseTabzConfig | null = null;
   private baseUrl: string = '';
 
-  private constructor() {}
+  private constructor() {
+    console.log('HouseTabz SDK Instantiated');
+  }
 
-  static getInstance(): HouseTabz {
+  public static getInstance(): HouseTabz {
+    console.log('Getting HouseTabz Instance');
     if (!HouseTabz.instance) {
       HouseTabz.instance = new HouseTabz();
     }
     return HouseTabz.instance;
   }
 
-  private determineBaseUrl(environment: string = 'development'): string {
+  private getBaseUrl(environment: string = 'development'): string {
     const urls = {
       production: 'https://housetabz.com',
       staging: 'https://staging.housetabz.com',
       development: 'http://localhost:3000'
     };
+    console.log('Setting Base URL for environment:', environment);
     return urls[environment] || urls.development;
   }
 
-  // Check if we should show the button
-  private shouldDisplay(): boolean {
+  private isDisplayable(): boolean {
     const params = new URLSearchParams(window.location.search);
-    return params.get('ref') === 'housetabz';
+    const shouldDisplay = params.get('ref') === 'housetabz';
+    console.log('Display Check:', { ref: params.get('ref'), shouldDisplay });
+    return shouldDisplay;
   }
 
-  async init(config: HouseTabzConfig): Promise<void> {
-    this.config = config;
-    this.baseUrl = this.determineBaseUrl(config.environment);
-    console.log('Base URL:', this.baseUrl);
+  public async init(config: HouseTabzConfig): Promise<void> {
+    console.log('=== Initializing HouseTabz SDK ===');
+    try {
+      if (!config.apiKey) throw new Error('API key is required');
+      if (!config.secretKey) throw new Error('Secret key is required');
 
-    if (!config.apiKey) {
-      throw new Error('API key is required');
+      this.config = config;
+      this.baseUrl = this.getBaseUrl(config.environment);
+      
+      console.log({
+        environment: config.environment,
+        baseUrl: this.baseUrl,
+        apiKeyPresent: !!config.apiKey,
+        sessionStorage: {
+          available: !!window.sessionStorage,
+          userId: window.sessionStorage.getItem('housetabz_user_id')
+        }
+      });
+    } catch (error) {
+      console.error('Initialization Error:', error);
+      throw error;
     }
   }
 
-  async mount(selector: string, options: MountOptions): Promise<void> {
-    // Only show button if user came from HouseTabz
-    if (!this.shouldDisplay()) {
+  public async mount(selector: string, options: MountOptions): Promise<void> {
+    console.log('=== Mounting HouseTabz Button ===');
+    console.log({ selector, options });
+
+    if (!this.isDisplayable()) {
+      console.log('Mount Cancelled: Display conditions not met');
       return;
     }
 
     const container = document.querySelector(selector);
-    if (!container) return;
+    if (!container) {
+      console.log('Mount Failed: Container not found');
+      return;
+    }
 
     this.renderButton(container, options);
+    console.log('Button Mounted Successfully');
   }
 
   private handleButtonClick(options: MountOptions): void {
-    const currentParams = new URLSearchParams(window.location.search);
-    const partnerId = currentParams.get('partner_id');
+    console.log('=== HouseTabz Button Clicked ===');
     
-    if (!partnerId) {
-        console.error('Missing partner_id parameter');
-        return;
+    try {
+      if (!this.config) {
+        throw new Error('HouseTabz not initialized');
+      }
+
+      const currentParams = new URLSearchParams(window.location.search);
+      const partnerId = currentParams.get('partner_id');
+      const userId = window.sessionStorage.getItem('housetabz_user_id');
+      
+      console.log('Click State:', {
+        partnerId,
+        userId,
+        sessionStorageKeys: Object.keys(window.sessionStorage),
+        currentUrl: window.location.href
+      });
+
+      if (!partnerId) throw new Error('Partner ID is required');
+      if (!userId) throw new Error('User ID is required');
+
+      const params = new URLSearchParams({
+        serviceName: options.serviceName,
+        serviceType: options.serviceType,
+        amount: options.estimatedAmount.toString(),
+        upfront: options.requiredUpfrontPayment?.toString() || '0',
+        transactionId: options.transactionId,
+        apiKey: this.config.apiKey,
+        secretKey: this.config.secretKey,
+        partner_id: partnerId,
+        user_id: userId
+      });
+
+      const redirectUrl = `${this.baseUrl}/confirm-request?${params}`;
+      console.log('Redirecting to:', redirectUrl);
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error('Button Click Error:', error);
+      alert(error.message);
     }
+  }
 
-    // In your SDK's handleButtonClick function:
-const params = new URLSearchParams({
-  serviceName: options.serviceName,
-  serviceType: options.serviceType,
-  amount: options.estimatedAmount.toString(),
-  upfront: options.requiredUpfrontPayment?.toString() || '0',
-  transactionId: options.transactionId,
-  apiKey: this.config!.apiKey,
-  secretKey: this.config!.secretKey,  // <-- Add secretKey here
-  partner_id: partnerId
-});
-
-    const redirectUrl = `http://localhost:3000/confirm-request?${params}`;
-    window.location.href = redirectUrl;
-}
   private renderButton(container: Element, options: MountOptions): void {
+    console.log('Rendering Button');
     const wrapper = document.createElement('div');
     wrapper.className = 'housetabz-wrapper';
 
     const button = document.createElement('button');
     button.className = 'housetabz-connect-button';
     button.innerHTML = 'Split with <span class="housetabz-highlight">HouseTabz</span>';
-
     button.onclick = () => this.handleButtonClick(options);
 
     wrapper.appendChild(button);
@@ -107,12 +152,17 @@ const params = new URLSearchParams({
 // Apply button styles
 const style = document.createElement('style');
 style.innerHTML = `
+  .housetabz-wrapper {
+    width: 100%;
+    margin: 10px 0;
+  }
+
   .housetabz-connect-button {
     padding: 14px 24px;
     font-size: 16px;
     font-weight: 600;
     color: white;
-    background-color: #6A0DAD;
+    background-color: #34d399;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -140,4 +190,3 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 export default HouseTabz.getInstance();
-//npx http-server -p 8080
