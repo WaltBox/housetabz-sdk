@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Energy Plan Checkout - PowerCo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>
             console.log('Page starting...');
         </script>
@@ -30,15 +31,15 @@
             <div class="space-y-4">
                 <div class="flex justify-between py-3 border-b border-gray-100">
                     <span class="text-gray-600">Plan Type</span>
-                    <span class="font-semibold text-gray-900">Green Energy Plus</span>
+                    <span class="font-semibold text-gray-900">Energy Test Plan</span>
                 </div>
                 <div class="flex justify-between py-3 border-b border-gray-100">
                     <span class="text-gray-600">Estimated Monthly</span>
-                    <span class="font-semibold text-gray-900">$99.99</span>
+                    <span class="font-semibold text-gray-900">150</span>
                 </div>
                 <div class="flex justify-between py-3">
                     <span class="text-gray-600">Security Deposit</span>
-                    <span class="font-semibold text-gray-900">$200.00</span>
+                    <span class="font-semibold text-gray-900">$100.00</span>
                 </div>
             </div>
         </div>
@@ -47,6 +48,15 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-medium text-gray-900 mb-6">Payment Method</h2>
             <div id="housetabz-button"></div>
+            
+            <!-- Add a PayPal reference button for comparison -->
+            <div class="mt-8">
+                <p class="text-sm text-gray-500 mb-2">Reference: PayPal Button</p>
+                <button class="flex items-center justify-center w-[250px] h-[40px] bg-white border border-gray-300 rounded px-4 text-gray-700">
+                    <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_100x26.png" class="h-5 mr-2" alt="PayPal">
+                    <span class="text-sm font-medium">Pay with PayPal</span>
+                </button>
+            </div>
         </div>
     </main>
 
@@ -56,48 +66,36 @@
         <div id="debug-info"></div>
     </div>
 
-    <!-- Load HouseTabz SDK -->
-    <!-- <script src="dist/housetabz.min.js"></script> -->
     <script>
-        
         window.addEventListener('load', async () => {
-            // Get URL parameters
-            const params = new URLSearchParams(window.location.search);
-            const partnerId = params.get('partner_id');
-            const userId = params.get('user_id');
-            const ref = params.get('ref');
+            // Add debugging info
+            document.getElementById('debug-info').innerHTML = 'Loading HouseTabz...';
             
-            // Show debug info
-            document.getElementById('debug-info').innerHTML = `
-                user_id: ${userId || 'not set'}<br>
-                partner_id: ${partnerId || 'not set'}<br>
-                ref: ${ref || 'not set'}<br>
-                Environment: development
-            `;
-
-            // Validate required parameters
-            if (!partnerId || !userId || ref !== 'housetabz') {
-                console.error('Missing or invalid URL parameters');
-                window.location.search = '?user_id=1&partner_id=11&ref=housetabz';
-                return;
-            }
-
             try {
                 await window.HouseTabz.init({
-                    apiKey: 'whec-340099b862ff45ac553074203ab2b906',
-                    secretKey: 'htzs-b544fc662907847f78b9f91a7c0f825153fec9b2e9fafc2db23e810eda095a68',
+                    apiKey: 'whec-4f64a132f0cf0d64b0dcf1cc667687df',
+                    secretKey: 'htzs-109d67487c1c75944a0503425259e11cfa582914fbe3d12df82983e67752fbe3',
                     environment: 'development'
                 });
+                
+                document.getElementById('debug-info').innerHTML += '<br>Init successful';
 
                 await window.HouseTabz.mount('#housetabz-button', {
-                    serviceName: 'Green Energy Plus Plan',
+                    serviceName: 'Energy Test Plan',
                     serviceType: 'energy',
-                    estimatedAmount: 99.99,
-                    requiredUpfrontPayment: 200.00,
-                    transactionId: `ENERGY-${partnerId}-${Date.now()}`
+                    estimatedAmount: 120,
+                    requiredUpfrontPayment: 100.00,
+                    transactionId: `ENERGY-TEST-${Date.now()}`,
+                    // Updated styling options
+                    buttonStyle: {
+                        buttonText: 'Pay with'
+                    }
                 });
+                
+                document.getElementById('debug-info').innerHTML += '<br>Button mounted';
             } catch (error) {
                 console.error('HouseTabz error:', error);
+                document.getElementById('debug-info').innerHTML += `<br>Error: ${error.message}`;
             }
         });
     </script>

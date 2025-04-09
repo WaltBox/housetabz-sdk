@@ -70,14 +70,14 @@
             // Validate required parameters
             if (!partnerId || !userId || ref !== 'housetabz') {
                 console.error('Missing or invalid URL parameters');
-                window.location.search = '?user_id=1&partner_id=12&ref=housetabz';
+                window.location.search = '?user_id=1&partner_id=1&ref=housetabz';
                 return;
             }
 
             try {
                 await window.HouseTabz.init({
-                    apiKey: 'whec-228c96e757559b88537c96cfbdd8c01f',
-                    secretKey: 'htzs-6dde892db25131b1faf939f916a5b943e85deaa5bee7718b3e2830b4578322b5',
+                    apiKey: 'whec-4f64a132f0cf0d64b0dcf1cc667687df',
+                    secretKey: 'htzs-109d67487c1c75944a0503425259e11cfa582914fbe3d12df82983e67752fbe3',
                     environment: 'development'
                 });
 
